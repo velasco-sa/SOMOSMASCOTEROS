@@ -1,0 +1,8 @@
+# Panel de administración: nunca indexar
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+</IfModule>
+Options -Indexes
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

@@ -1,0 +1,9 @@
+# Imágenes subidas desde el panel (se generan en el servidor)
+uploads/media/*
+!uploads/media/.gitkeep
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

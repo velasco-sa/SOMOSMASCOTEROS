@@ -1,0 +1,22 @@
+{
+  "name": "Somos Mascoteros",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "root",
+  "containerEnv": {
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": "3306",
+    "DB_NAME": "somos_mascoteros",
+    "DB_USER": "mascoteros",
+    "DB_PASS": "mascoteros"
+  },
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": { "label": "Sitio Somos Mascoteros", "onAutoForward": "openBrowser" }
+  },
+  "postStartCommand": "bash .devcontainer/start.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["bmewburn.vscode-intelephense-client"]
+    }
+  }
+}
