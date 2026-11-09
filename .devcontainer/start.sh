@@ -60,15 +60,22 @@ mkdir -p uploads/media 2>/dev/null; $SUDO chmod -R a+rwX uploads 2>/dev/null
 export DB_HOST="${DB_HOST:-127.0.0.1}" DB_PORT="${DB_PORT:-3306}" DB_NAME="${DB_NAME:-somos_mascoteros}"
 export DB_USER="${DB_USER:-mascoteros}" DB_PASS="${DB_PASS:-mascoteros}"
 
-pkill -f "php -S 0.0.0.0:8080" >/dev/null 2>&1; $SUDO pkill -f "php -S 0.0.0.0:8080" >/dev/null 2>&1
+pkill -f "php .*-S .*:8080" >/dev/null 2>&1; $SUDO pkill -f "php .*-S .*:8080" >/dev/null 2>&1
 sleep 1
 step "Iniciando el servidor web en el puerto 8080…"
-setsid nohup php -d upload_max_filesize=10M -d post_max_size=12M -S 0.0.0.0:8080 -t "$ROOT" >"$LOG" 2>&1 < /dev/null &
-sleep 2
+probe() { php -r '$c=@file_get_contents($argv[1]); echo isset($http_response_header[0]) ? $http_response_header[0] : "sin respuesta";' "$1"; }
+serve() { setsid nohup php -d upload_max_filesize=10M -d post_max_size=12M -S "$1" -t "$ROOT" >"$LOG" 2>&1 < /dev/null & sleep 2; }
+# Escuchar en IPv6 + IPv4 (el reenvío de puertos de Codespaces puede usar cualquiera de los dos)
+serve "[::]:8080"
+case "$(probe http://127.0.0.1:8080/)" in
+  *" 200"*) ok "Servidor escuchando en IPv4 e IPv6" ;;
+  *) pkill -f "php .*-S .*:8080" >/dev/null 2>&1; sleep 1; serve "0.0.0.0:8080"; ok "Servidor escuchando en IPv4" ;;
+esac
 
 # ---------- 4. Comprobación ----------
-code=$(php -r '$c=@file_get_contents("http://127.0.0.1:8080/"); echo isset($http_response_header[0]) ? $http_response_header[0] : "sin respuesta";')
-echo "  Respuesta del sitio: $code"
+code=$(probe http://127.0.0.1:8080/)
+echo "  Respuesta del sitio (IPv4): $code"
+echo "  Respuesta del sitio (IPv6): $(probe 'http://[::1]:8080/')"
 case "$code" in
   *" 200"*) ok "El sitio responde correctamente." ;;
   *) echo "--- Registro del servidor ---"; tail -20 "$LOG"; fail "El sitio no respondió bien." ;;
