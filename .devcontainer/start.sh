@@ -5,6 +5,7 @@
 cd "$(dirname "$0")/.." || exit 1
 ROOT="$(pwd)"
 LOG=/tmp/php-server.log
+BACKUP="$ROOT/database/respaldo-auto.sql"
 SUDO=""; [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO="sudo"
 
 ok()   { echo "✔ $*"; }
@@ -49,11 +50,23 @@ FLUSH PRIVILEGES;
 SQL
 
 if ! $SUDO mysql -uroot somos_mascoteros -e "SELECT 1 FROM users LIMIT 1" >/dev/null 2>&1; then
-  step "Creando tablas y cargando datos de ejemplo…"
-  $SUDO mysql -uroot somos_mascoteros < database/01_schema.sql || fail "Error al crear las tablas."
-  $SUDO mysql -uroot somos_mascoteros < database/02_seed.sql   || fail "Error al cargar los datos de ejemplo."
+  if [ -s "$BACKUP" ]; then
+    step "Restaurando tu último respaldo automático…"
+    $SUDO mysql -uroot somos_mascoteros < "$BACKUP" || fail "Error al restaurar el respaldo."
+  else
+    step "Creando tablas y cargando datos de ejemplo…"
+    $SUDO mysql -uroot somos_mascoteros < database/01_schema.sql || fail "Error al crear las tablas."
+    $SUDO mysql -uroot somos_mascoteros < database/02_seed.sql   || fail "Error al cargar los datos de ejemplo."
+  fi
 fi
 ok "Base de datos lista"
+
+# Respaldo automático ahora y cada 10 minutos, dentro de la carpeta del proyecto
+# (sobrevive a reinicios y reconstrucciones del Codespace)
+$SUDO mysqldump -uroot --single-transaction somos_mascoteros > "$BACKUP.tmp" 2>/dev/null && mv "$BACKUP.tmp" "$BACKUP" \
+  && ok "Respaldo guardado en database/respaldo-auto.sql"
+pkill -f "sm_autobackup_loop" >/dev/null 2>&1
+setsid nohup bash .devcontainer/autobackup.sh sm_autobackup_loop >/dev/null 2>&1 < /dev/null &
 mkdir -p uploads/media 2>/dev/null; $SUDO chmod -R a+rwX uploads 2>/dev/null
 
 # ---------- 3. Servidor web ----------
