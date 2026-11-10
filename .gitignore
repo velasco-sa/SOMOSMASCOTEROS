@@ -8,3 +8,8 @@ Thumbs.db
 .idea/
 *.log
 database/respaldo-auto.sql*
+
+# Respaldos de la base de datos (contienen datos privados: nunca subirlos)
+respaldo*.sql
+database/respaldo*.sql*
+database/antes-de-restaurar.sql
