@@ -48,9 +48,28 @@ try {
          VALUES (?,?,?,?,?,?,?,?)',
         [$customerId, $pet, $status, $petName, $count, $in, $out, $notes !== '' ? $notes : null]
     );
+    $bookingId = (int)$pdo->lastInsertId();
     $pdo->commit();
 } catch (Throwable $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     json_out(['ok' => false, 'message' => 'No pudimos registrar tu solicitud. Inténtalo más tarde.'], 500);
 }
-json_out(['ok' => true, 'message' => setting('booking_success_message')]);
+
+// Aviso por correo al negocio (después de responder al visitante)
+require_once dirname(__DIR__) . '/includes/mailer.php';
+respond_then(['ok' => true, 'message' => setting('booking_success_message')], function () use ($bookingId, $pet, $in, $out, $count, $name, $email, $phone, $petName, $notes) {
+    $petType = (string)db_value('SELECT name FROM pet_types WHERE id = ?', [$pet]);
+    $nights = (int)(new DateTime($in))->diff(new DateTime($out))->days;
+    $html = mail_template('Nueva solicitud de reserva', [
+        'Cliente'   => $name,
+        'Correo'    => $email,
+        'Teléfono'  => $phone,
+        'Mascota'   => $petName . ' (' . $petType . ($count > 1 ? ' · ' . $count . ' mascotas' : '') . ')',
+        'Llegada'   => fecha_es($in),
+        'Salida'    => fecha_es($out),
+        'Noches'    => (string)$nights,
+        'Notas'     => $notes,
+        'Reserva #' => (string)$bookingId,
+    ], 'Un visitante solicitó una estancia desde el sitio web. Quedó como "Pendiente": confírmala o cancélala desde el panel, en Reservas.');
+    notify_admin('booking', '🐾 Nueva reserva: ' . $petName . ' · ' . fecha_es($in) . ' → ' . fecha_es($out), $html, $email, $name);
+});

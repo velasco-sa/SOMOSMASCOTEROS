@@ -559,6 +559,16 @@
     });
   }
 
+  // Botón de correo de prueba (Configuración → Notificaciones)
+  const mailTest = $1('#mailTest');
+  if (mailTest) mailTest.addEventListener('click', async () => {
+    UI.setLoading(mailTest, true);
+    const r = await api('mail_test', {});
+    UI.setLoading(mailTest, false);
+    if (r.ok) UI.alert('success', '¡Correo enviado!', r.message);
+    else UI.alert('error', 'No se pudo enviar el correo', r.message);
+  });
+
   /* ------------------------------------------------------------------ Permisos */
   if (SM.page === 'permissions') {
     UI.initSelect2(d);

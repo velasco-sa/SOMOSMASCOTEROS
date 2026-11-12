@@ -53,6 +53,15 @@ admin_header('Configuración del sitio', 'settings', ['subtitle' => 'Identidad, 
           </div>
         <?php endforeach; ?>
       </div>
+      <?php if (in_array('notify_email', array_column($by[$g['id']], 'setting_key'), true)): ?>
+        <div class="mail-test">
+          <div>
+            <strong><i class="fa-solid fa-paper-plane"></i> Probar los avisos</strong>
+            <p>Guarda primero el correo y luego envía una prueba. Si no llega en un par de minutos, revisa la carpeta de spam.</p>
+          </div>
+          <?php if ($canEdit): ?><button type="button" class="btn btn--secondary" id="mailTest"><i class="fa-solid fa-envelope-circle-check"></i> Enviar correo de prueba</button><?php endif; ?>
+        </div>
+      <?php endif; ?>
       <?php if ((int)$g['sort_order'] === 2 || stripos($g['name'], 'color') !== false): ?>
         <div class="palette-preview" data-palette-preview>
           <span style="background:var(--pv-bg)">Fondo</span><span style="background:var(--pv-primary);color:#fff">Principal</span><span style="background:var(--pv-secondary)">Secundario</span><span style="background:var(--pv-accent)">Acento</span>

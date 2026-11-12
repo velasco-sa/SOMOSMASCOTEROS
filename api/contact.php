@@ -22,4 +22,16 @@ db_exec(
     'INSERT INTO contact_messages (full_name, email, phone, subject, message) VALUES (?,?,?,?,?)',
     [$name, $email, $phone ?: null, $subject !== '' ? mb_substr($subject, 0, 160) : null, mb_substr($message, 0, 3000)]
 );
-json_out(['ok' => true, 'message' => setting('contact_success_message')]);
+
+// Aviso por correo al negocio (después de responder al visitante)
+require_once dirname(__DIR__) . '/includes/mailer.php';
+respond_then(['ok' => true, 'message' => setting('contact_success_message')], function () use ($name, $email, $phone, $subject, $message) {
+    $html = mail_template('Nuevo mensaje de contacto', [
+        'Nombre'   => $name,
+        'Correo'   => $email,
+        'Teléfono' => $phone,
+        'Asunto'   => $subject,
+        'Mensaje'  => $message,
+    ], 'Alguien te escribió desde el formulario de contacto del sitio web. Puedes responderle directamente contestando este correo.');
+    notify_admin('message', '✉️ Nuevo mensaje de ' . $name . ($subject !== '' ? ': ' . $subject : ''), $html, $email, $name);
+});

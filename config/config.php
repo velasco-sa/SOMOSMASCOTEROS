@@ -18,4 +18,14 @@ return [
     'debug'      => getenv('APP_DEBUG') === '1',
     // Tamaño máximo de imágenes subidas (MB)
     'max_upload_mb' => 8,
+    // Envío de avisos por correo (reservas y mensajes) usando tu Gmail.
+    // smtp_user: tu Gmail completo. smtp_pass: la "contraseña de aplicación" de 16 letras
+    // que genera Google (NO la contraseña normal de tu Gmail). Déjalos vacíos para no usar Gmail.
+    'mail' => [
+        'smtp_host'   => getenv('SMTP_HOST') ?: 'smtp.gmail.com',
+        'smtp_port'   => (int)(getenv('SMTP_PORT') ?: 465),
+        'smtp_secure' => getenv('SMTP_SECURE') ?: 'ssl',   // 'ssl' (puerto 465) o 'tls' (puerto 587)
+        'smtp_user'   => getenv('SMTP_USER') ?: '',
+        'smtp_pass'   => getenv('SMTP_PASS') ?: '',
+    ],
 ];

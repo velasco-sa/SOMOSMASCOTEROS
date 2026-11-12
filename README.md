@@ -109,6 +109,21 @@ El menú lateral muestra solo los módulos que el rol del usuario tiene permitid
 
 ---
 
+## 📧 Avisos por correo (reservas y mensajes)
+
+Cada solicitud de reserva y cada mensaje del formulario de contacto pueden enviarte un aviso a tu Gmail.
+
+1. **Contraseña de aplicación de Google** (necesaria para que los correos salgan desde tu Gmail y no caigan en spam):
+   - Activa la verificación en dos pasos en https://myaccount.google.com/security
+   - Crea la contraseña en https://myaccount.google.com/apppasswords (nombre: `Somos Mascoteros`). Google te mostrará 16 letras.
+2. En el hosting, edita `config/config.php` y completa `smtp_user` (tu Gmail) y `smtp_pass` (las 16 letras).
+3. Si tu base de datos ya existía, ejecuta una vez `database/03_notificaciones.sql` en phpMyAdmin (pestaña **SQL**).
+4. En el panel: **Configuración del sitio → Notificaciones**, escribe el correo que recibe los avisos, guarda y pulsa **Enviar correo de prueba**.
+
+Puedes responder el aviso directamente: la respuesta le llega al cliente.
+
+---
+
 ## 🗄️ Base de datos (normalizada en 3FN)
 
 - Cada tabla tiene clave primaria y datos atómicos (**1FN**).

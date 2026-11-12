@@ -57,6 +57,7 @@ if ! $SUDO mysql -uroot somos_mascoteros -e "SELECT 1 FROM users LIMIT 1" >/dev/
     step "Creando tablas y cargando datos de ejemplo…"
     $SUDO mysql -uroot somos_mascoteros < database/01_schema.sql || fail "Error al crear las tablas."
     $SUDO mysql -uroot somos_mascoteros < database/02_seed.sql   || fail "Error al cargar los datos de ejemplo."
+    $SUDO mysql -uroot somos_mascoteros < database/03_notificaciones.sql >/dev/null 2>&1
   fi
 fi
 ok "Base de datos lista"

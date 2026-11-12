@@ -206,6 +206,26 @@ try {
             log_activity('settings', 'edit');
             json_out(['ok' => true, 'message' => 'La configuración se guardó correctamente.']);
 
+        // ------------------------------------------------------------ Correo de prueba
+        case 'mail_test':
+            require_perm('settings', 'edit');
+            require_once dirname(__DIR__) . '/includes/mailer.php';
+            $to = trim(setting('notify_email'));
+            if ($to === '') {
+                throw new ValidationError('Primero escribe el correo que recibe los avisos y pulsa "Guardar configuración".', 'notify_email');
+            }
+            $smtp = mail_config()['smtp_user'] !== '';
+            $html = mail_template('¡Los avisos funcionan! 🎉', [
+                'Enviado a' => $to,
+                'Método'    => $smtp ? 'Gmail (' . mail_config()['smtp_user'] . ')' : 'Servidor del hosting (mail de PHP)',
+                'Fecha'     => date('d/m/Y H:i'),
+            ], 'Este es un correo de prueba. Desde ahora recibirás aquí un aviso por cada solicitud de reserva y cada mensaje de contacto del sitio.');
+            [$ok, $detail] = send_mail($to, '✅ Prueba de avisos · ' . setting('site_name', 'Somos Mascoteros'), $html);
+            if (!$ok) {
+                json_out(['ok' => false, 'message' => 'No se pudo enviar: ' . $detail], 502);
+            }
+            json_out(['ok' => true, 'message' => "Correo de prueba enviado a $to. " . ($smtp ? '' : 'Como no configuraste Gmail en config.php, revisa también la carpeta de spam.')]);
+
         // ------------------------------------------------------------ Permisos por rol
         case 'permissions_save':
             require_perm('roles', 'edit');
