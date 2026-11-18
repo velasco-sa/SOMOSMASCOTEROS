@@ -499,3 +499,13 @@ a { color: inherit; }
 html { overflow-x: hidden; }
 main, .section, .footer { overflow-x: clip; }
 @supports not (overflow: clip) { main, .section, .footer { overflow-x: hidden; } }
+
+/* Menú móvil: mientras está abierto, el encabezado no debe tener backdrop-filter,
+   porque eso encierra al menú (position: fixed) dentro del encabezado en los celulares. */
+@media (max-width: 1320px) {
+  .menu-open .nav, .menu-open .nav.is-scrolled, .menu-open.is-inner .nav {
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+    background: transparent !important; box-shadow: none !important;
+  }
+  .nav__links { height: 100vh; height: 100dvh; }
+}

@@ -173,7 +173,7 @@ function safe_link(?string $url): string
   <link rel="stylesheet" href="assets/vendor/select2/select2.min.css">
   <link rel="stylesheet" href="assets/vendor/flatpickr/flatpickr.min.css">
   <link rel="stylesheet" href="assets/css/ui.css?v=1">
-  <link rel="stylesheet" href="assets/css/site.css?v=1">
+  <link rel="stylesheet" href="assets/css/site.css?v=2">
   <?= theme_style_tag() ?>
 </head>
 <body class="<?= $isHome ? 'is-home' : 'is-inner' ?>">
