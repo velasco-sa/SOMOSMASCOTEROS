@@ -33,7 +33,25 @@
     d.documentElement.style.overflow = open ? 'hidden' : '';
   }
   if (burger) burger.addEventListener('click', () => toggleMenu());
-  $$('.nav__links a').forEach(a => a.addEventListener('click', () => toggleMenu(false)));
+  // Enlaces del menú: cerrar el menú y LUEGO ir a la sección.
+  // (Safari en iPhone/iPad ignora el salto si ocurre mientras se libera el bloqueo de scroll.)
+  function goToSection(target, hash) {
+    const offset = nav ? nav.offsetHeight : 0;
+    const top = target.getBoundingClientRect().top + w.scrollY - offset + 1;
+    w.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    if (hash && w.history && history.replaceState) history.replaceState(null, '', hash);
+  }
+  $$('.nav__links a').forEach(a => a.addEventListener('click', e => {
+    const href = a.getAttribute('href') || '';
+    const wasOpen = d.body.classList.contains('menu-open');
+    toggleMenu(false);
+    if (href.charAt(0) !== '#') return;            // enlaces a otras páginas: comportamiento normal
+    const target = d.getElementById(decodeURIComponent(href.slice(1)));
+    if (!target) return;
+    e.preventDefault();
+    if (wasOpen) setTimeout(() => goToSection(target, href), 80);
+    else goToSection(target, href);
+  }));
   w.addEventListener('resize', () => { if (w.innerWidth > 1320) toggleMenu(false); });
 
   // Resaltar la sección activa del menú

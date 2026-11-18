@@ -334,6 +334,6 @@ function safe_link(?string $url): string
 <script src="assets/vendor/flatpickr/flatpickr.min.js"></script>
 <script src="assets/vendor/flatpickr/l10n/es.js"></script>
 <script src="assets/js/ui.js?v=1"></script>
-<script src="assets/js/site.js?v=1"></script>
+<script src="assets/js/site.js?v=2"></script>
 </body>
 </html>
